@@ -19,7 +19,8 @@ import fetchers.new_mexico as _nm
 import fetchers.colorado   as _co
 import fetchers.florida    as _fl
 import fetchers.arizona    as _az
-import fetchers.georgia    as _ga
+import fetchers.georgia         as _ga
+import fetchers.north_carolina  as _nc
 
 _FETCHER_MAP = {
     "utah":       _utah,
@@ -27,7 +28,8 @@ _FETCHER_MAP = {
     "colorado":   _co,
     "florida":    _fl,
     "arizona":    _az,
-    "georgia":    _ga,
+    "georgia":         _ga,
+    "north_carolina":  _nc,
 }
 
 _HEADERS = {"User-Agent": "ParcelFinderBot/1.0 (internal drone-hub research tool)"}
@@ -38,8 +40,27 @@ _OVERPASS_URLS = [
 
 
 def fetch_parcels(state, city_name, property_classes, max_value, min_acres, max_acres):
-    state_cfg  = MARKETS[state]
-    city_cfg   = state_cfg["cities"][city_name]
+    state_cfg = MARKETS[state]
+    city_cfg  = state_cfg["cities"][city_name]
+
+    if state == "Georgia":
+        from fetchers.georgia import fetch_georgia_parcels
+        return fetch_georgia_parcels(
+            county=city_cfg.get("county", "fulton"),
+            max_value=max_value,
+            min_acres=min_acres,
+            max_acres=max_acres,
+        )
+
+    elif state == "North Carolina":
+        from fetchers.north_carolina import fetch_nc_parcels
+        return fetch_nc_parcels(
+            city=city_cfg.get("city", "charlotte"),
+            max_value=max_value,
+            min_acres=min_acres,
+            max_acres=max_acres,
+        )
+
     fetcher_id = state_cfg["fetcher"]
     module     = _FETCHER_MAP[fetcher_id]
     return module.fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres)
