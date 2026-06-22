@@ -160,6 +160,17 @@ def _build_where(max_value, min_acres, max_acres):
     )
 
 
+def fetch_georgia_parcels(
+    county:    str   = "fulton",
+    max_value: int   = 500_000,
+    min_acres: float = 0.10,
+    max_acres: float = 0.50,
+) -> "pd.DataFrame":
+    city_cfg = {"county": county}
+    return fetch_parcels(city_cfg, ["Commercial", "Industrial", "Vacant"],
+                         max_value, min_acres, max_acres)
+
+
 def fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres):
     if not property_classes:
         property_classes = ["Commercial", "Industrial", "Vacant"]

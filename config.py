@@ -49,19 +49,13 @@ _WALMART_HOUSTON = [
     {"name": "Walmart Supercenter - Katy Fwy",      "lat": 29.7654, "lng": -95.4951},
     {"name": "Walmart Supercenter - Fuqua",         "lat": 29.6226, "lng": -95.4215},
 ]
-_WALMART_CHARLOTTE = [
-    {"name": "Walmart Supercenter - N Tryon St",       "lat": 35.3260, "lng": -80.7410},
-    {"name": "Walmart Supercenter - Albemarle Rd",     "lat": 35.2160, "lng": -80.7670},
-    {"name": "Walmart Supercenter - W Harris Blvd",    "lat": 35.3470, "lng": -80.8470},
-    {"name": "Walmart Supercenter - Steele Creek Rd",  "lat": 35.1590, "lng": -80.9230},
-    {"name": "Walmart Supercenter - E Independence",   "lat": 35.1880, "lng": -80.7840},
-]
-_WALMART_RALEIGH = [
-    {"name": "Walmart Supercenter - Capital Blvd",     "lat": 35.8770, "lng": -78.6350},
-    {"name": "Walmart Supercenter - Wake Forest Rd",   "lat": 35.8300, "lng": -78.6170},
-    {"name": "Walmart Supercenter - Glenwood Ave",     "lat": 35.8530, "lng": -78.6980},
-    {"name": "Walmart Supercenter - S Saunders St",    "lat": 35.7260, "lng": -78.6540},
-    {"name": "Walmart Supercenter - New Bern Ave",     "lat": 35.7600, "lng": -78.5710},
+_WALMART_NC = [
+    {"name": "Walmart - Charlotte (Arrowood)",    "lat": 35.3050, "lng": -80.7430},
+    {"name": "Walmart - Charlotte (Steele Creek)","lat": 35.2290, "lng": -80.8470},
+    {"name": "Walmart - Pineville",               "lat": 35.1960, "lng": -80.7720},
+    {"name": "Walmart - Raleigh (New Bern Ave)",  "lat": 35.7840, "lng": -78.5820},
+    {"name": "Walmart - Cary",                    "lat": 35.8390, "lng": -78.7210},
+    {"name": "Walmart - Apex/Morrisville",        "lat": 35.7300, "lng": -78.8500},
 ]
 _WALMART_ATLANTA = [
     {"name": "Walmart Supercenter - Smyrna",         "lat": 33.8580, "lng": -84.4700},
@@ -191,13 +185,19 @@ MARKETS = {
                 "city": "charlotte",
                 "map_center": [35.23, -80.84],
                 "overpass_bbox": "35.00,-81.10,35.52,-80.56",
-                "walmart_static": _WALMART_CHARLOTTE,
+                "walmart_static": _WALMART_NC,
             },
-            "Raleigh": {
+            "Raleigh-Durham": {
                 "city": "raleigh",
                 "map_center": [35.78, -78.64],
                 "overpass_bbox": "35.55,-78.90,36.05,-78.30",
-                "walmart_static": _WALMART_RALEIGH,
+                "walmart_static": _WALMART_NC,
+            },
+            "All NC": {
+                "city": "all",
+                "map_center": [35.50, -79.80],
+                "overpass_bbox": "35.00,-81.10,36.05,-78.30",
+                "walmart_static": _WALMART_NC,
             },
         },
     },

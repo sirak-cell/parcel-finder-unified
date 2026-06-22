@@ -3,7 +3,7 @@ import json
 import folium
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
+from streamlit_folium import st_folium
 
 from config import DEFAULTS, MARKETS
 from fetcher import fetch_parcels, fetch_walmarts
@@ -70,6 +70,7 @@ with st.sidebar:
         st.error("Min Walmart distance must be less than max.")
         st.stop()
 
+    full_screen = st.checkbox("Full Screen Map", value=False)
     run = st.button("Run Search", type="primary", use_container_width=True)
 
 
@@ -232,7 +233,16 @@ if st.session_state.results is not None:
             tooltip=str(r.get("address", "")),
         ).add_to(m)
 
-    components.html(m._repr_html_(), height=540, scrolling=False)
+    if full_screen:
+        st.markdown("""
+            <style>
+            iframe[title="streamlit_folium.st_folium"] {
+                height: 88vh !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+    st_folium(m, height=540, use_container_width=True)
     st.caption(
         "Map: 🟢 Zipline-match · 🔵 Commercial · ⚫ Industrial · 🟠 Vacant · 🔴 Walmart (2-mi ring)"
     )
