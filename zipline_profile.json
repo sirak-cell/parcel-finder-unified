@@ -1,0 +1,7 @@
+{
+  "sqft_min": 4000,
+  "sqft_max": 9000,
+  "max_walmart_mi": 2.0,
+  "property_classes": ["Commercial", "Industrial", "Vacant"],
+  "description": "Matches Zipline active site profile: ~6000 sqft commercial/industrial within 2mi of Walmart"
+}

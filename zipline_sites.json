@@ -1,0 +1,163 @@
+[
+  {
+    "address": "5539 Hwy 6 N, Houston, TX 77084",
+    "city": "Houston",
+    "state": "TX",
+    "lat": 29.8201378,
+    "lon": -95.6455983
+  },
+  {
+    "address": "7420 N Beach St, Fort Worth, TX 76137",
+    "city": "Fort Worth",
+    "state": "TX",
+    "lat": 32.871768,
+    "lon": -97.2908758
+  },
+  {
+    "address": "10660 FM 1960 W, Houston, TX 77070",
+    "city": "Houston",
+    "state": "TX",
+    "lat": 29.9634332,
+    "lon": -95.5438976
+  },
+  {
+    "address": "242 Slack Street, Pea Ridge, AR 72751",
+    "city": "Pea Ridge",
+    "state": "AR",
+    "lat": 36.4422491,
+    "lon": -94.1194581
+  },
+  {
+    "address": "200 US Highway 80 E, Mesquite, TX 75149",
+    "city": "Mesquite",
+    "state": "TX",
+    "lat": 32.7887734,
+    "lon": -96.5992399
+  },
+  {
+    "address": "1200 N Highway 77, Waxahachie, TX 75165",
+    "city": "Waxahachie",
+    "state": "TX",
+    "lat": 32.368679,
+    "lon": -96.854946
+  },
+  {
+    "address": "7401 Interstate Highway 30, Greenville, TX 75402",
+    "city": "Greenville",
+    "state": "TX",
+    "lat": 33.080966,
+    "lon": -96.1349336
+  },
+  {
+    "address": "300 Kings Fort Pkwy, Kaufman, TX 75142",
+    "city": "Kaufman",
+    "state": "TX",
+    "lat": 32.5696513,
+    "lon": -96.3075299
+  },
+  {
+    "address": "1836 S Main St, Weatherford, TX 76086",
+    "city": "Weatherford",
+    "state": "TX",
+    "lat": 32.7316094,
+    "lon": -97.7949007
+  },
+  {
+    "address": "7401 Samuell Blvd, Dallas, TX 75228",
+    "city": "Dallas",
+    "state": "TX",
+    "lat": 32.79382,
+    "lon": -96.6892809
+  },
+  {
+    "address": "3005 Lakeview Parkway, Rowlett, TX 75088",
+    "city": "Rowlett",
+    "state": "TX",
+    "lat": 32.9074279,
+    "lon": -96.5745827
+  },
+  {
+    "address": "4101 Highway 121, Bedford, TX 76021",
+    "city": "Bedford",
+    "state": "TX",
+    "lat": 32.8641907,
+    "lon": -97.1061102
+  },
+  {
+    "address": "190 E Round Grove Rd, Lewisville, TX 75067",
+    "city": "Lewisville",
+    "state": "TX",
+    "lat": 33.0005166,
+    "lon": -96.9909985
+  },
+  {
+    "address": "9301 Forest Ln, Dallas, TX 75243",
+    "city": "Dallas",
+    "state": "TX",
+    "lat": 32.909328,
+    "lon": -96.741267
+  },
+  {
+    "address": "1900 W Moore Ave, Terrell, TX 75160",
+    "city": "Terrell",
+    "state": "TX",
+    "lat": 32.7397674,
+    "lon": -96.3060954
+  },
+  {
+    "address": "951 W Belt Line Rd, DeSoto, TX 75115",
+    "city": "DeSoto",
+    "state": "TX",
+    "lat": 32.5928663,
+    "lon": -96.8797956
+  },
+  {
+    "address": "951 SW Wilshire Blvd, Burleson, TX 76028",
+    "city": "Burleson",
+    "state": "TX",
+    "lat": 32.5277428,
+    "lon": -97.3377838
+  },
+  {
+    "address": "700 E Ennis Ave, Ennis, TX 75119",
+    "city": "Ennis",
+    "state": "TX",
+    "lat": 32.333383,
+    "lon": -96.6206985
+  },
+  {
+    "address": "2041 N Redbud Blvd, McKinney, TX 75069",
+    "city": "McKinney",
+    "state": "TX",
+    "lat": 33.2200138,
+    "lon": -96.6301991
+  },
+  {
+    "address": "100 S Ryan Dr, Red Oak, TX 75154",
+    "city": "Red Oak",
+    "state": "TX",
+    "lat": 32.530948,
+    "lon": -96.817372
+  },
+  {
+    "address": "521 S Central Expressway, Anna, TX 75409",
+    "city": "Anna",
+    "state": "TX",
+    "lat": 33.3478117,
+    "lon": -96.5822952
+  },
+  {
+    "address": "494 W Interstate 30, Royse City, TX 75189",
+    "city": "Royse City",
+    "state": "TX",
+    "lat": 32.9657977,
+    "lon": -96.3431405
+  },
+  {
+    "address": "701 W Princeton Dr, Princeton, TX 75407",
+    "city": "Princeton",
+    "state": "TX",
+    "lat": 33.173525,
+    "lon": -96.5122738
+  }
+]
