@@ -1,6 +1,7 @@
 import json
 
 import folium
+from folium.plugins import Fullscreen
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
@@ -74,9 +75,6 @@ with st.sidebar:
 
 
 # ── Session state ──────────────────────────────────────────────────────────────
-if "theater_mode" not in st.session_state:
-    st.session_state.theater_mode = False
-
 if "results" not in st.session_state:
     st.session_state.results  = None
     st.session_state.walmarts = []
@@ -165,22 +163,6 @@ if st.session_state.results is not None:
     if search:
         st.caption(f"Filter '{search}' — showing {len(results)} of {len(st.session_state.results)}")
 
-    # ── Theater mode (YouTube-style widen) ────────────────────────────────────────
-    if st.session_state.theater_mode:
-        st.markdown("""
-        <style>
-        section[data-testid="stSidebar"] { display: none !important; }
-        .main .block-container { max-width: 100% !important; padding-left: 2rem !important; padding-right: 2rem !important; }
-        </style>
-        """, unsafe_allow_html=True)
-
-    _spacer, _theater_col = st.columns([40, 1])
-    with _theater_col:
-        _icon = "⊡" if st.session_state.theater_mode else "⛶"
-        if st.button(_icon, help="Theater mode — widen map", key="theater_btn"):
-            st.session_state.theater_mode = not st.session_state.theater_mode
-            st.rerun()
-
     # ── Map ────────────────────────────────────────────────────────────────────
     map_center = (
         [results["lat"].mean(), results["lng"].mean()]
@@ -195,6 +177,7 @@ if st.session_state.results is not None:
     ).add_to(m)
     folium.TileLayer(tiles="CartoDB positron", name="Street Map").add_to(m)
     folium.LayerControl(position="topright").add_to(m)
+    Fullscreen(position="topleft", title="Full screen", title_cancel="Exit full screen", force_separate_button=True).add_to(m)
 
     # Walmart markers + 2-mile radius circles
     for w in walmarts:
