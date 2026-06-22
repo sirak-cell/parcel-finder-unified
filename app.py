@@ -70,11 +70,13 @@ with st.sidebar:
         st.error("Min Walmart distance must be less than max.")
         st.stop()
 
-    full_screen = st.checkbox("Full Screen Map", value=False)
     run = st.button("Run Search", type="primary", use_container_width=True)
 
 
 # ── Session state ──────────────────────────────────────────────────────────────
+if "theater_mode" not in st.session_state:
+    st.session_state.theater_mode = False
+
 if "results" not in st.session_state:
     st.session_state.results  = None
     st.session_state.walmarts = []
@@ -163,6 +165,22 @@ if st.session_state.results is not None:
     if search:
         st.caption(f"Filter '{search}' — showing {len(results)} of {len(st.session_state.results)}")
 
+    # ── Theater mode (YouTube-style widen) ────────────────────────────────────────
+    if st.session_state.theater_mode:
+        st.markdown("""
+        <style>
+        section[data-testid="stSidebar"] { display: none !important; }
+        .main .block-container { max-width: 100% !important; padding-left: 2rem !important; padding-right: 2rem !important; }
+        </style>
+        """, unsafe_allow_html=True)
+
+    _spacer, _theater_col = st.columns([40, 1])
+    with _theater_col:
+        _icon = "⊡" if st.session_state.theater_mode else "⛶"
+        if st.button(_icon, help="Theater mode — widen map", key="theater_btn"):
+            st.session_state.theater_mode = not st.session_state.theater_mode
+            st.rerun()
+
     # ── Map ────────────────────────────────────────────────────────────────────
     map_center = (
         [results["lat"].mean(), results["lng"].mean()]
@@ -232,15 +250,6 @@ if st.session_state.results is not None:
             popup=folium.Popup(_popup(r, pc), max_width=360),
             tooltip=str(r.get("address", "")),
         ).add_to(m)
-
-    if full_screen:
-        st.markdown("""
-            <style>
-            iframe[title="streamlit_folium.st_folium"] {
-                height: 88vh !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
 
     st_folium(m, height=540, use_container_width=True)
     st.caption(
