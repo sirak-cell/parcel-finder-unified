@@ -49,6 +49,13 @@ _WALMART_HOUSTON = [
     {"name": "Walmart Supercenter - Katy Fwy",      "lat": 29.7654, "lng": -95.4951},
     {"name": "Walmart Supercenter - Fuqua",         "lat": 29.6226, "lng": -95.4215},
 ]
+_WALMART_ATLANTA = [
+    {"name": "Walmart Supercenter - Hollowell Pkwy NW",   "lat": 33.7734, "lng": -84.4683},
+    {"name": "Walmart Supercenter - Cascade Rd SW",        "lat": 33.7095, "lng": -84.4798},
+    {"name": "Walmart Supercenter - Metropolitan Pkwy SW", "lat": 33.6895, "lng": -84.4122},
+    {"name": "Walmart Supercenter - Fulton Industrial",    "lat": 33.7502, "lng": -84.5484},
+    {"name": "Walmart Supercenter - East Point",           "lat": 33.6770, "lng": -84.4462},
+]
 _WALMART_PHOENIX = [
     {"name": "Walmart Supercenter - W Indian School Rd", "lat": 33.4944, "lng": -112.1480},
     {"name": "Walmart Supercenter - N 35th Ave",         "lat": 33.5729, "lng": -112.1302},
@@ -159,6 +166,17 @@ MARKETS = {
                 "map_center": [40.5853, -105.0844],
                 "overpass_bbox": "40.4,-105.3,40.8,-104.9",
                 "walmart_static": [],
+            },
+        },
+    },
+    "Georgia": {
+        "state_abbr": "GA",
+        "fetcher": "georgia",
+        "cities": {
+            "Atlanta (Fulton County)": {
+                "map_center": [33.749, -84.388],
+                "overpass_bbox": "33.54,-84.77,34.00,-84.20",
+                "walmart_static": _WALMART_ATLANTA,
             },
         },
     },

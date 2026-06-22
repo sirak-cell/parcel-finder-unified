@@ -19,6 +19,7 @@ import fetchers.new_mexico as _nm
 import fetchers.colorado   as _co
 import fetchers.florida    as _fl
 import fetchers.arizona    as _az
+import fetchers.georgia    as _ga
 
 _FETCHER_MAP = {
     "utah":       _utah,
@@ -26,6 +27,7 @@ _FETCHER_MAP = {
     "colorado":   _co,
     "florida":    _fl,
     "arizona":    _az,
+    "georgia":    _ga,
 }
 
 _HEADERS = {"User-Agent": "ParcelFinderBot/1.0 (internal drone-hub research tool)"}
