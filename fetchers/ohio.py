@@ -35,16 +35,7 @@ _COUNTIES = {
         "name":  "Franklin County",
         "wgs84": False,
     },
-    "cuyahoga": {
-        "url":   "https://gis.cuyahogacounty.us/server/rest/services/CCFO/APPRAISAL_PARCELS_CAMA_WGS84/MapServer/0/query",
-        "name":  "Cuyahoga County",
-        "wgs84": True,   # already reprojected, no outSR needed
-    },
-    "hamilton": {
-        "url":   "https://services.arcgis.com/D3NKVHuqKLUmA7Pu/arcgis/rest/services/Hamilton_County_Parcel_Polygons/FeatureServer/0/query",
-        "name":  "Hamilton County",
-        "wgs84": False,
-    },
+    # Cuyahoga and Hamilton endpoints need live verification — coming soon
 }
 
 _HEADERS    = {"User-Agent": "ParcelFinderBot/1.0 (internal drone-hub research tool)"}
@@ -257,12 +248,15 @@ def fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres):
 
     for county_key in counties:
         if county_key not in _COUNTIES:
-            print(f"[ohio] Unknown county key: {county_key}")
+            print(f"[ohio] Skipping {county_key} — endpoint not yet verified")
             continue
-        print(f"[ohio] fetching {_COUNTIES[county_key]['name']}...")
-        rows = _fetch_county(county_key, max_value, min_acres, max_acres, property_classes)
-        print(f"[ohio]   → {len(rows)} parcels")
-        all_rows.extend(rows)
+        try:
+            print(f"[ohio] fetching {_COUNTIES[county_key]['name']}...")
+            rows = _fetch_county(county_key, max_value, min_acres, max_acres, property_classes)
+            print(f"[ohio]   → {len(rows)} parcels")
+            all_rows.extend(rows)
+        except Exception as e:
+            print(f"[ohio] WARNING: {_COUNTIES[county_key]['name']} failed: {e}")
         time.sleep(0.4)
 
     empty_cols = [
