@@ -21,15 +21,17 @@ import fetchers.florida    as _fl
 import fetchers.arizona    as _az
 import fetchers.georgia         as _ga
 import fetchers.north_carolina  as _nc
+import fetchers.ohio            as _oh
 
 _FETCHER_MAP = {
-    "utah":       _utah,
-    "new_mexico": _nm,
-    "colorado":   _co,
-    "florida":    _fl,
-    "arizona":    _az,
-    "georgia":         _ga,
-    "north_carolina":  _nc,
+    "utah":           _utah,
+    "new_mexico":     _nm,
+    "colorado":       _co,
+    "florida":        _fl,
+    "arizona":        _az,
+    "georgia":        _ga,
+    "north_carolina": _nc,
+    "ohio":           _oh,
 }
 
 _HEADERS = {"User-Agent": "ParcelFinderBot/1.0 (internal drone-hub research tool)"}
@@ -60,6 +62,10 @@ def fetch_parcels(state, city_name, property_classes, max_value, min_acres, max_
             min_acres=min_acres,
             max_acres=max_acres,
         )
+
+    elif state == "Ohio":
+        from fetchers.ohio import fetch_parcels as _oh_fetch
+        return _oh_fetch(city_cfg, property_classes, max_value, min_acres, max_acres)
 
     fetcher_id = state_cfg["fetcher"]
     module     = _FETCHER_MAP[fetcher_id]

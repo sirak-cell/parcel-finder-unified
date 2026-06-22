@@ -64,6 +64,27 @@ _WALMART_ATLANTA = [
     {"name": "Walmart Supercenter - SW Atlanta",      "lat": 33.7200, "lng": -84.5040},
     {"name": "Walmart Supercenter - Duluth/Gwinnett", "lat": 33.9620, "lng": -84.1290},
 ]
+_WALMART_COLUMBUS = [
+    {"name": "Walmart Supercenter - E Broad St",        "lat": 39.9621, "lng": -82.8568},
+    {"name": "Walmart Supercenter - Morse Rd",          "lat": 40.0672, "lng": -82.9476},
+    {"name": "Walmart Supercenter - Alkire Rd",         "lat": 39.8726, "lng": -83.0906},
+    {"name": "Walmart Supercenter - Westpointe Plaza",  "lat": 39.9704, "lng": -83.0926},
+    {"name": "Walmart Supercenter - S Hamilton Rd",     "lat": 39.9411, "lng": -82.8278},
+]
+_WALMART_CLEVELAND = [
+    {"name": "Walmart Supercenter - Brookpark Rd",      "lat": 41.3938, "lng": -81.7607},
+    {"name": "Walmart Supercenter - Snow Rd",           "lat": 41.4391, "lng": -81.7598},
+    {"name": "Walmart Supercenter - Harvard Ave",       "lat": 41.4131, "lng": -81.6340},
+    {"name": "Walmart Supercenter - Ridge Rd",          "lat": 41.3978, "lng": -81.7869},
+    {"name": "Walmart Supercenter - Brooklyn",          "lat": 41.4337, "lng": -81.7371},
+]
+_WALMART_CINCINNATI = [
+    {"name": "Walmart Supercenter - Colerain Ave",      "lat": 39.2419, "lng": -84.5700},
+    {"name": "Walmart Supercenter - Harrison Ave",      "lat": 39.1697, "lng": -84.5931},
+    {"name": "Walmart Supercenter - Fields Ertel",      "lat": 39.2828, "lng": -84.3274},
+    {"name": "Walmart Supercenter - Beechmont Ave",     "lat": 39.1024, "lng": -84.3048},
+    {"name": "Walmart Supercenter - Fairfield",         "lat": 39.3404, "lng": -84.5551},
+]
 _WALMART_PHOENIX = [
     {"name": "Walmart Supercenter - W Indian School Rd", "lat": 33.4944, "lng": -112.1480},
     {"name": "Walmart Supercenter - N 35th Ave",         "lat": 33.5729, "lng": -112.1302},
@@ -260,6 +281,37 @@ MARKETS = {
                 "walmart_static": _WALMART_PHOENIX,
             },
         },
+    },
+    "Ohio": {
+        "state_abbr": "OH",
+        "fetcher":    "ohio",
+        "cities": {
+            "Columbus": {
+                "counties":      ["franklin"],
+                "map_center":    [39.96, -82.99],
+                "overpass_bbox": "39.75,-83.20,40.18,-82.75",
+                "walmart_static": _WALMART_COLUMBUS,
+            },
+            "Cleveland": {
+                "counties":      ["cuyahoga"],
+                "map_center":    [41.50, -81.69],
+                "overpass_bbox": "41.28,-81.98,41.70,-81.37",
+                "walmart_static": _WALMART_CLEVELAND,
+            },
+            "Cincinnati": {
+                "counties":      ["hamilton"],
+                "map_center":    [39.10, -84.51],
+                "overpass_bbox": "38.95,-84.75,39.35,-84.25",
+                "walmart_static": _WALMART_CINCINNATI,
+            },
+            "All Ohio": {
+                "counties":      ["franklin", "cuyahoga", "hamilton"],
+                "map_center":    [40.18, -83.06],
+                "overpass_bbox": "38.95,-84.75,41.70,-81.37",
+                "walmart_static": _WALMART_COLUMBUS + _WALMART_CLEVELAND + _WALMART_CINCINNATI,
+            },
+        },
+        "walmart_fallback": [],
     },
     "Florida": {
         "state_abbr": "FL",
