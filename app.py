@@ -12,7 +12,7 @@ from geo import filter_by_walmart_proximity
 
 st.set_page_config(page_title="Parcel Finder — Unified", layout="wide")
 st.title("Parcel Finder — Drone Hub Site Sourcing")
-st.caption("Utah · New Mexico · Colorado · Arizona · North Carolina · Georgia · Florida — Commercial / Industrial / Vacant")
+st.caption("Utah · New Mexico · Colorado · Arizona · North Carolina · Georgia · Ohio · Florida — Commercial / Industrial / Vacant")
 
 # ── Load Zipline profile ───────────────────────────────────────────────────────
 @st.cache_data
