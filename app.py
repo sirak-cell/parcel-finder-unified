@@ -234,7 +234,7 @@ if st.session_state.results is not None:
             tooltip=str(r.get("address", "")),
         ).add_to(m)
 
-    st_folium(m, height=700, use_container_width=True)
+    st_folium(m, height=900, use_container_width=True)
     st.caption(
         "Map: 🟢 Zipline-match · 🔵 Commercial · ⚫ Industrial · 🟠 Vacant · 🔴 Walmart (2-mi ring)"
     )
