@@ -1,5 +1,3 @@
-import json
-
 import folium
 from folium.plugins import Fullscreen
 import pandas as pd
@@ -14,23 +12,26 @@ st.set_page_config(page_title="Parcel Finder — Unified", layout="wide")
 st.title("Parcel Finder — Drone Hub Site Sourcing")
 st.caption("Utah · New Mexico · Colorado · Arizona · North Carolina · Georgia · Ohio · Florida — Commercial / Industrial / Vacant")
 
-# ── Load Zipline profile ───────────────────────────────────────────────────────
-@st.cache_data
-def _load_zipline_profile():
-    with open("zipline_profile.json") as f:
-        return json.load(f)
+# ── Motivated-seller signal detection ─────────────────────────────────────────
+_PROBATE_KEYS = frozenset(["ESTATE", "HEIR", "PROBATE", "DECEASED", " TR ", "TRUSTEE", "C/O ", "EXEC"])
 
-ZIPLINE_PROFILE = _load_zipline_profile()
-
-
-def _is_zipline_match(row, profile):
-    sqft  = float(row.get("land_sqft") or 0)
-    wm_mi = row.get("nearest_walmart_mi")
+def _motivated_signals(row):
+    """Return list of motivated-seller signal labels for a parcel row."""
+    signals = []
+    owner = str(row.get("owner_name") or "").upper()
     pc    = row.get("property_class", "")
-    sqft_ok  = profile["sqft_min"] <= sqft <= profile["sqft_max"]
-    wm_ok    = (wm_mi is not None) and (wm_mi <= profile["max_walmart_mi"])
-    class_ok = pc in profile["property_classes"]
-    return sqft_ok and wm_ok and class_ok
+    val   = float(row.get("assessed_value") or 0)
+    sqft  = float(row.get("land_sqft") or 0)
+
+    if row.get("out_of_state"):
+        signals.append("Absentee Owner")
+    if any(k in owner for k in _PROBATE_KEYS):
+        signals.append("Estate/Probate")
+    if pc == "Vacant":
+        signals.append("Vacant Land")
+    if sqft > 0 and val / sqft < 2.0:
+        signals.append("Distressed Value")
+    return signals
 
 
 # ── Sidebar ────────────────────────────────────────────────────────────────────
@@ -142,24 +143,17 @@ if st.session_state.results is not None:
     vac_results        = results[results["property_class"] == "Vacant"].copy()
     ci_results = pd.concat([commercial_results, industrial_results], ignore_index=True)
 
-    # Pre-count Zipline matches for summary (loop runs again during map rendering)
-    zipline_count = sum(
-        1 for _, r in results.iterrows() if _is_zipline_match(r, ZIPLINE_PROFILE)
+    motivated_count = sum(
+        1 for _, r in results.iterrows() if len(_motivated_signals(r)) >= 2
     )
 
     st.success(
         f"**{len(results)} parcels** — "
-        f"🟢 {zipline_count} Zipline-match · "
+        f"🟣 {motivated_count} Motivated Seller · "
         f"🔵 {len(commercial_results)} Commercial · "
         f"⚫ {len(industrial_results)} Industrial · "
         f"🟠 {len(vac_results)} Vacant"
     )
-    if zipline_count > 0:
-        st.caption(
-            f"🟢 Green = matches Zipline site profile "
-            f"({int(ZIPLINE_PROFILE['sqft_min']):,}–{int(ZIPLINE_PROFILE['sqft_max']):,} sqft, "
-            f"≤{ZIPLINE_PROFILE['max_walmart_mi']} mi from Walmart)"
-        )
     if search:
         st.caption(f"Filter '{search}' — showing {len(results)} of {len(st.session_state.results)}")
 
@@ -196,12 +190,13 @@ if st.session_state.results is not None:
             opacity=0.4,
         ).add_to(m)
 
-    def _popup(row, prop_class):
+    def _popup(row, prop_class, signals=None):
         wm_mi   = row.get("nearest_walmart_mi")
         wm_name = row.get("nearest_walmart_name") or ""
         wm_str  = f"{wm_mi:.1f} mi ({wm_name})" if wm_mi is not None else "N/A"
+        sig_str = (f"<br><b>🎯 {' · '.join(signals)}</b>" if signals else "")
         return (
-            f"<b>{row.get('owner_name') or 'Unknown'}</b><br>"
+            f"<b>{row.get('owner_name') or 'Unknown'}</b>{sig_str}<br>"
             f"Mail: {row.get('owner_address','')} {row.get('owner_city','')} "
             f"{row.get('owner_state','')} {row.get('owner_zip','')}<br>"
             f"Situs: {row.get('address','')}, {row.get('city','')}<br>"
@@ -214,13 +209,14 @@ if st.session_state.results is not None:
             f"Parcel: {row.get('parcel_id','')}"
         )
 
-    # Parcel pins — green=Zipline match, blue=Commercial, gray=Industrial, orange=Vacant
+    # Parcel pins — purple=motivated seller (2+ signals), blue=Commercial, gray=Industrial, orange=Vacant
     for _, r in results.iterrows():
         if r.get("lat") is None or r.get("lng") is None:
             continue
-        pc = r.get("property_class", "Commercial")
-        if _is_zipline_match(r, ZIPLINE_PROFILE):
-            color = "green"
+        pc      = r.get("property_class", "Commercial")
+        signals = _motivated_signals(r)
+        if len(signals) >= 2:
+            color = "purple"
         elif pc == "Industrial":
             color = "gray"
         elif pc == "Vacant":
@@ -230,13 +226,13 @@ if st.session_state.results is not None:
         folium.Marker(
             [r["lat"], r["lng"]],
             icon=folium.Icon(color=color),
-            popup=folium.Popup(_popup(r, pc), max_width=360),
+            popup=folium.Popup(_popup(r, pc, signals or None), max_width=360),
             tooltip=str(r.get("address", "")),
         ).add_to(m)
 
     st_folium(m, height=900, use_container_width=True)
     st.caption(
-        "Map: 🟢 Zipline-match · 🔵 Commercial · ⚫ Industrial · 🟠 Vacant · 🔴 Walmart (2-mi ring)"
+        "Map: 🟣 Motivated Seller (2+ signals) · 🔵 Commercial · ⚫ Industrial · 🟠 Vacant · 🔴 Walmart (2-mi ring)"
     )
 
     # ── Summary & tables ───────────────────────────────────────────────────────
@@ -288,6 +284,20 @@ if st.session_state.results is not None:
     if vac_results.empty:
         st.info("No Vacant parcels matched all filters.")
     else:
+        # Signal breakdown within vacant
+        n_absentee   = vac_results["out_of_state"].sum() if "out_of_state" in vac_results.columns else 0
+        n_estate     = vac_results["owner_name"].str.upper().str.contains(
+            "|".join(_PROBATE_KEYS), na=False
+        ).sum() if "owner_name" in vac_results.columns else 0
+        n_distressed = (
+            (vac_results["assessed_value"] / vac_results["land_sqft"].replace(0, float("nan"))) < 2.0
+        ).sum() if "assessed_value" in vac_results.columns else 0
+        st.caption(
+            f"Signal breakdown — "
+            f"✉️ {n_absentee} absentee owners · "
+            f"⚖️ {n_estate} estate/probate · "
+            f"🏚️ {n_distressed} distressed value (<$2/sqft)"
+        )
         st.caption("Verify zoning before pursuing Vacant parcels.")
         st.dataframe(vac_results[_safe_cols(vac_results)], use_container_width=True)
         st.download_button(
@@ -298,17 +308,17 @@ if st.session_state.results is not None:
             key="dl_vac",
         )
 
-    # ── Zipline-match combined CSV ─────────────────────────────────────────────
-    if zipline_count > 0:
-        zipline_matches = results[results.apply(
-            lambda r: _is_zipline_match(r, ZIPLINE_PROFILE), axis=1
+    # ── Motivated Sellers combined CSV ────────────────────────────────────────
+    if motivated_count > 0:
+        motivated_matches = results[results.apply(
+            lambda r: len(_motivated_signals(r)) >= 2, axis=1
         )].copy()
         st.download_button(
-            f"⬇️ Download Zipline-Match CSV ({zipline_count} parcels)",
-            data=zipline_matches[_safe_cols(zipline_matches)].to_csv(index=False),
-            file_name=f"{slug}_zipline_match_{ts}.csv",
+            f"⬇️ Download Motivated Sellers CSV ({motivated_count} parcels)",
+            data=motivated_matches[_safe_cols(motivated_matches)].to_csv(index=False),
+            file_name=f"{slug}_motivated_{ts}.csv",
             mime="text/csv",
-            key="dl_zipline",
+            key="dl_motivated",
         )
 
 else:
