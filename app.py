@@ -22,15 +22,24 @@ def _motivated_signals(row):
     pc    = row.get("property_class", "")
     val   = float(row.get("assessed_value") or 0)
     sqft  = float(row.get("land_sqft") or 0)
+    acres = float(row.get("land_acres") or 0)
 
     if row.get("out_of_state"):
         signals.append("Absentee Owner")
     if any(k in owner for k in _PROBATE_KEYS):
         signals.append("Estate/Probate")
+
     if pc == "Vacant":
-        signals.append("Vacant Land")
-    if sqft > 0 and val / sqft < 2.0:
+        per_sqft = val / sqft if sqft > 0 else 0
+        if 0 < per_sqft < 0.50:
+            signals.append("Blighted")
+        elif 0 < per_sqft < 2.0:
+            signals.append("Distressed Land")
+        if acres < 0.50:
+            signals.append("Infill Lot")
+    elif sqft > 0 and val / sqft < 2.0:
         signals.append("Distressed Value")
+
     return signals
 
 
@@ -283,21 +292,28 @@ if st.session_state.results is not None:
         st.info("No Vacant parcels matched all filters.")
     else:
         # Signal breakdown within vacant
-        n_absentee   = vac_results["out_of_state"].sum() if "out_of_state" in vac_results.columns else 0
-        n_estate     = vac_results["owner_name"].str.upper().str.contains(
+        _per_sqft   = vac_results["assessed_value"] / vac_results["land_sqft"].replace(0, float("nan"))
+        n_blighted   = int((_per_sqft < 0.50).sum())
+        n_distressed = int(((_per_sqft >= 0.50) & (_per_sqft < 2.0)).sum())
+        n_infill     = int((vac_results["land_acres"] < 0.50).sum())
+        n_absentee   = int(vac_results["out_of_state"].sum()) if "out_of_state" in vac_results.columns else 0
+        n_estate     = int(vac_results["owner_name"].str.upper().str.contains(
             "|".join(_PROBATE_KEYS), na=False
-        ).sum() if "owner_name" in vac_results.columns else 0
-        n_distressed = (
-            (vac_results["assessed_value"] / vac_results["land_sqft"].replace(0, float("nan"))) < 2.0
-        ).sum() if "assessed_value" in vac_results.columns else 0
+        ).sum()) if "owner_name" in vac_results.columns else 0
         st.caption(
-            f"Signal breakdown — "
-            f"✉️ {n_absentee} absentee owners · "
-            f"⚖️ {n_estate} estate/probate · "
-            f"🏚️ {n_distressed} distressed value (<$2/sqft)"
+            f"🏚️ {n_blighted} blighted (<$0.50/sqft) · "
+            f"📉 {n_distressed} distressed land · "
+            f"🧱 {n_infill} infill lots (<0.5ac) · "
+            f"✉️ {n_absentee} absentee · "
+            f"⚖️ {n_estate} estate/probate"
         )
         st.caption("Verify zoning before pursuing Vacant parcels.")
-        st.dataframe(vac_results[_safe_cols(vac_results)], use_container_width=True)
+        _vac_display = vac_results.copy()
+        _vac_display["signals"] = _vac_display.apply(
+            lambda r: " · ".join(_motivated_signals(r)) or "—", axis=1
+        )
+        _vac_cols = ["signals"] + _safe_cols(vac_results)
+        st.dataframe(_vac_display[_vac_cols], use_container_width=True)
         st.download_button(
             "⬇️ Download Vacant CSV",
             data=vac_results[_safe_cols(vac_results)].to_csv(index=False),
