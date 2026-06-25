@@ -158,7 +158,7 @@ if st.session_state.results is not None:
 
     st.success(
         f"**{len(results)} parcels** — "
-        f"🟣 {motivated_count} Motivated Seller · "
+        f"🎯 {motivated_count} Motivated Seller · "
         f"🔵 {len(commercial_results)} Commercial · "
         f"⚫ {len(industrial_results)} Industrial · "
         f"🟠 {len(vac_results)} Vacant"
