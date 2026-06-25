@@ -127,6 +127,12 @@ def fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres):
                 continue
             acres = sqft / 43560
             dor = str(a.get("DOR_UC") or "").strip()
+            # For Vacant DOR codes, skip parcels where improvement value > $5k
+            if dor in VAC_CODES:
+                lnd_val = float(a.get("LND_VAL") or 0)
+                jv      = float(a.get("JV") or 0)
+                if jv - lnd_val > 5000:
+                    continue
             owner_state = str(a.get("OWN_STATE") or "").strip()
             try:
                 zip_str = str(int(a.get("PHY_ZIPCD") or 0))

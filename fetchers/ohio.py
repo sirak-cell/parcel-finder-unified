@@ -203,7 +203,7 @@ def _where_lgim(classes, min_acres, max_acres, max_value):
     if "Industrial" in classes:
         parts.append("(CLASSCD >= '550' AND CLASSCD <= '599')")
     if "Vacant" in classes:
-        parts.append("CLASSCD = '490'")
+        parts.append("(CLASSCD = '490' AND BLDVALUEBASE = 0)")
     if not parts:
         return None
     return (

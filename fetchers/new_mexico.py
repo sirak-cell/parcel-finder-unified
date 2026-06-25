@@ -87,7 +87,7 @@ def _build_where(max_value, min_acres, max_acres, property_classes):
     if "Industrial" in property_classes:
         exprs.append(f"(PROPCLASS = 'C' AND IMPTVALUE = 0 AND LUC IN ('{ind_lucs}'))")
     if "Vacant" in property_classes:
-        exprs.append("(PROPCLASS = 'V' AND LUC = '9300')")
+        exprs.append("(PROPCLASS = 'V' AND LUC = '9300' AND IMPTVALUE = 0)")
 
     if not exprs:
         return "1=0"
