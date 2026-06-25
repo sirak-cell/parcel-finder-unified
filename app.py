@@ -215,9 +215,7 @@ if st.session_state.results is not None:
             continue
         pc      = r.get("property_class", "Commercial")
         signals = _motivated_signals(r)
-        if len(signals) >= 2:
-            color = "purple"
-        elif pc == "Industrial":
+        if pc == "Industrial":
             color = "gray"
         elif pc == "Vacant":
             color = "orange"
@@ -232,7 +230,7 @@ if st.session_state.results is not None:
 
     st_folium(m, height=900, use_container_width=True)
     st.caption(
-        "Map: 🟣 Motivated Seller (2+ signals) · 🔵 Commercial · ⚫ Industrial · 🟠 Vacant · 🔴 Walmart (2-mi ring)"
+        "Map: 🔵 Commercial · ⚫ Industrial · 🟠 Vacant · 🔴 Walmart (2-mi ring)"
     )
 
     # ── Summary & tables ───────────────────────────────────────────────────────
