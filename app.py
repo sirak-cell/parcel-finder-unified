@@ -35,6 +35,8 @@ def _motivated_signals(row):
             signals.append("Blighted")
         elif 0 < per_sqft < 2.0:
             signals.append("Distressed Land")
+        else:
+            signals.append("Undeveloped")
         if acres < 0.50:
             signals.append("Infill Lot")
     elif sqft > 0 and val / sqft < 2.0:
@@ -300,17 +302,19 @@ if st.session_state.results is not None:
         st.info("No Vacant parcels matched all filters.")
     else:
         # Signal breakdown within vacant
-        _per_sqft   = vac_results["assessed_value"] / vac_results["land_sqft"].replace(0, float("nan"))
-        n_blighted   = int((_per_sqft < 0.50).sum())
-        n_distressed = int(((_per_sqft >= 0.50) & (_per_sqft < 2.0)).sum())
-        n_infill     = int((vac_results["land_acres"] < 0.50).sum())
-        n_absentee   = int(vac_results["out_of_state"].sum()) if "out_of_state" in vac_results.columns else 0
-        n_estate     = int(vac_results["owner_name"].str.upper().str.contains(
+        _per_sqft     = vac_results["assessed_value"] / vac_results["land_sqft"].replace(0, float("nan"))
+        n_blighted    = int((_per_sqft < 0.50).sum())
+        n_distressed  = int(((_per_sqft >= 0.50) & (_per_sqft < 2.0)).sum())
+        n_undeveloped = int((_per_sqft >= 2.0).sum())
+        n_infill      = int((vac_results["land_acres"] < 0.50).sum())
+        n_absentee    = int(vac_results["out_of_state"].sum()) if "out_of_state" in vac_results.columns else 0
+        n_estate      = int(vac_results["owner_name"].str.upper().str.contains(
             "|".join(_PROBATE_KEYS), na=False
         ).sum()) if "owner_name" in vac_results.columns else 0
         st.caption(
-            f"🏚️ {n_blighted} blighted (<$0.50/sqft) · "
+            f"🌿 {n_undeveloped} undeveloped · "
             f"📉 {n_distressed} distressed land · "
+            f"🏚️ {n_blighted} blighted · "
             f"🧱 {n_infill} infill lots (<0.5ac) · "
             f"✉️ {n_absentee} absentee · "
             f"⚖️ {n_estate} estate/probate"
