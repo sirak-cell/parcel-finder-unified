@@ -123,6 +123,14 @@ if run:
         if removed:
             st.caption(f"Removed {removed} government-owned parcels.")
 
+    # Drop parcels with no street number (road-only addresses like "MAIN ST")
+    if not results.empty and "address" in results.columns:
+        before = len(results)
+        results = results[results["address"].str.match(r'^\d', na=False)].copy()
+        removed = before - len(results)
+        if removed:
+            st.caption(f"Removed {removed} parcels with no street number.")
+
     st.session_state.results  = results
     st.session_state.walmarts = walmarts
     st.session_state.city_cfg = city_cfg

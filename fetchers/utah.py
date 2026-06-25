@@ -40,14 +40,20 @@ _PAGE_DELAY   = 0.5
 
 def _build_where(max_value, min_acres, max_acres, property_classes, ugrc_cities):
     types = property_classes or list(_TYPE_PATTERNS.keys())
-    conditions = [_TYPE_PATTERNS[t] for t in types if t in _TYPE_PATTERNS]
-    prop_expr = "(" + " OR ".join(conditions) + ")" if conditions else "1=1"
+
+    # Per-class building filter: Vacant = no recorded building; C/I = allow small structures
+    parts = []
+    for t in types:
+        if t not in _TYPE_PATTERNS:
+            continue
+        bldg = "BLDG_SQFT IS NULL" if t == "Vacant" else "(BLDG_SQFT IS NULL OR BLDG_SQFT <= 500)"
+        parts.append(f"({_TYPE_PATTERNS[t]} AND {bldg})")
+    prop_expr = "(" + " OR ".join(parts) + ")" if parts else "1=1"
 
     exclusions = (
         " AND UPPER(PROP_CLASS) NOT LIKE '%APARTMENT%'"
         " AND UPPER(PROP_CLASS) NOT LIKE '%CONDO%'"
         " AND UPPER(PROP_CLASS) NOT LIKE '%RESIDENTIAL%'"
-        " AND (BLDG_SQFT IS NULL OR BLDG_SQFT <= 500)"
         " AND (TAXEXEMPT_TYPE IS NULL OR UPPER(TAXEXEMPT_TYPE) NOT LIKE '%GOVERNMENT%')"
     )
     where = (
