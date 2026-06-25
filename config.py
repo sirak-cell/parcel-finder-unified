@@ -78,6 +78,13 @@ _WALMART_CLEVELAND = [
     {"name": "Walmart Supercenter - Ridge Rd",          "lat": 41.3978, "lng": -81.7869},
     {"name": "Walmart Supercenter - Brooklyn",          "lat": 41.4337, "lng": -81.7371},
 ]
+_WALMART_NASHVILLE = [
+    {"name": "Walmart Supercenter - Murfreesboro Pike",  "lat": 36.0971, "lng": -86.6652},
+    {"name": "Walmart Supercenter - Gallatin Pike",      "lat": 36.2381, "lng": -86.6930},
+    {"name": "Walmart Supercenter - Nolensville Pike",   "lat": 36.0537, "lng": -86.7382},
+    {"name": "Walmart Supercenter - Old Hickory Blvd",   "lat": 36.1720, "lng": -86.8810},
+    {"name": "Walmart Supercenter - Bell Rd",            "lat": 36.0360, "lng": -86.6190},
+]
 _WALMART_CINCINNATI = [
     {"name": "Walmart Supercenter - Colerain Ave",      "lat": 39.2419, "lng": -84.5700},
     {"name": "Walmart Supercenter - Harrison Ave",      "lat": 39.1697, "lng": -84.5931},
@@ -306,6 +313,17 @@ MARKETS = {
             },
         },
         "walmart_fallback": [],
+    },
+    "Tennessee": {
+        "state_abbr": "TN",
+        "fetcher": "tennessee",
+        "cities": {
+            "Nashville": {
+                "map_center":    [36.17, -86.78],
+                "overpass_bbox": "36.00,-87.10,36.42,-86.50",
+                "walmart_static": _WALMART_NASHVILLE,
+            },
+        },
     },
     "Florida": {
         "state_abbr": "FL",
