@@ -16,13 +16,17 @@ import urllib.request
 from config import MARKETS
 
 _HWY_RE = re.compile(r'\b(?:HWY|HIGHWAY|INTERSTATE)\b', re.I)
+_MIN_ASSESSED_VALUE = 5_000
 
 
-def _strip_highway_parcels(df):
-    if df.empty or "address" not in df.columns:
+def _clean_parcels(df):
+    if df.empty:
         return df
-    mask = df["address"].str.contains(_HWY_RE, na=False)
-    return df[~mask].reset_index(drop=True)
+    if "address" in df.columns:
+        df = df[~df["address"].str.contains(_HWY_RE, na=False)]
+    if "assessed_value" in df.columns:
+        df = df[df["assessed_value"] >= _MIN_ASSESSED_VALUE]
+    return df.reset_index(drop=True)
 
 import fetchers.utah       as _utah
 import fetchers.new_mexico as _nm
@@ -81,7 +85,7 @@ def fetch_parcels(state, city_name, property_classes, max_value, min_acres, max_
         module     = _FETCHER_MAP[fetcher_id]
         df = module.fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres)
 
-    return _strip_highway_parcels(df)
+    return _clean_parcels(df)
 
 
 def fetch_walmarts(city_cfg):
