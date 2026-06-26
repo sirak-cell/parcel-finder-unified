@@ -177,7 +177,7 @@ def _fetch_charlotte(max_value, min_acres, max_acres):
     queries = [
         ("Commercial", f"landusecode LIKE 'C%' AND {base}"),
         ("Industrial", f"landusecode LIKE 'I%' AND {base}"),
-        ("Vacant",     f"landusecode NOT LIKE 'C%' AND landusecode NOT LIKE 'I%' AND {base}"),
+        ("Vacant",     f"landusecode NOT LIKE 'C%' AND landusecode NOT LIKE 'I%' AND landusecode NOT LIKE 'R%' AND landusecode NOT LIKE 'UR%' AND {base}"),
     ]
     rows = []
     for prop_class, where in queries:

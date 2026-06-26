@@ -373,7 +373,7 @@ def _where_hamilton(classes, min_acres, max_acres, max_value):
     if "Industrial" in classes:
         parts.append("EXLUCODE IN ('LI', 'HI')")
     if "Vacant" in classes:
-        parts.append("(EXLUCODE = 'VA' AND MKTIMP = 0)")
+        parts.append("(EXLUCODE = 'VA' AND MKTIMP = 0 AND CLASS >= 300)")
     if not parts:
         return None
     return (
