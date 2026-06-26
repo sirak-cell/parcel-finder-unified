@@ -69,6 +69,17 @@ with st.sidebar:
         default=["Commercial", "Industrial"],
     )
 
+    vacant_subtypes = st.pills(
+        "Vacant Land Types",
+        options=[
+            "Blighted", "Distressed Land", "Infill Lot", "Undeveloped",
+            "Raw Land", "Bare Land", "Improved Land", "Unimproved Land",
+        ],
+        selection_mode="multi",
+        default=None,
+        help="Narrow vacant results by land character. Leave blank to show all.",
+    )
+
     max_value = st.slider(
         "Max Assessed Value ($)", 0, 2_000_000,
         DEFAULTS["max_value"], step=25_000,
@@ -168,6 +179,11 @@ if st.session_state.results is not None:
     commercial_results = results[results["property_class"] == "Commercial"].copy()
     industrial_results = results[results["property_class"] == "Industrial"].copy()
     vac_results        = results[results["property_class"] == "Vacant"].copy()
+    if vacant_subtypes:
+        _subtype_set = set(vacant_subtypes)
+        vac_results = vac_results[vac_results.apply(
+            lambda r: bool(set(_motivated_signals(r)) & _subtype_set), axis=1
+        )].copy()
     ci_results = pd.concat([commercial_results, industrial_results], ignore_index=True)
 
     motivated_count = sum(
