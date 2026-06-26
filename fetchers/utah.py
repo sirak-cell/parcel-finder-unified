@@ -167,7 +167,7 @@ def _enrich_slc_owners(df):
         id_clause = "','".join(chunk)
         params = {
             "where": f"parcel_id IN ('{id_clause}')",
-            "outFields": "parcel_id,own_name,own_addr,own_citystate,own_zip",
+            "outFields": "parcel_id,own_name,own_addr,own_citystate,own_zip,lot_use",
             "returnGeometry": "false",
             "f": "json",
         }
@@ -193,11 +193,12 @@ def _enrich_slc_owners(df):
                     "owner_city":    cs_parts[0].strip() if cs_parts else "",
                     "owner_state":   cs_parts[1].strip() if len(cs_parts) > 1 else "",
                     "owner_zip":     str(a.get("own_zip") or "").strip(),
+                    "lot_use":       str(a.get("lot_use") or "").strip(),
                 }
         except Exception:
             pass
 
-    for col in ["owner_name", "owner_address", "owner_city", "owner_state", "owner_zip"]:
+    for col in ["owner_name", "owner_address", "owner_city", "owner_state", "owner_zip", "lot_use"]:
         df[col] = df["parcel_id"].map(lambda pid: owner_map.get(pid, {}).get(col, ""))
     df["out_of_state"] = df["owner_state"].str.upper().apply(lambda s: s not in ("UT", "UTAH", ""))
     return df
@@ -278,9 +279,17 @@ def fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres):
     slc_df   = df[df["county"] == "Salt Lake County"].copy()
     davis_df = df[df["county"] == "Davis County"].copy()
 
-    slc_enriched   = _enrich_slc_owners(slc_df)
+    slc_enriched = _enrich_slc_owners(slc_df)
+    # Remove SLC Vacant parcels that the assessor classifies as residential/agricultural.
+    # lot_use: 'C'=Commercial, 'I'=Industrial, 'R'=Residential, 'RE'=Residential Estate,
+    #          'A'=Agricultural, 'MH'=Mobile Home — only keep C/I for Vacant rows.
+    if "lot_use" in slc_enriched.columns:
+        is_vacant = slc_enriched["property_class"] == "Vacant"
+        non_comm  = ~slc_enriched["lot_use"].str.upper().isin(["C", "I"])
+        slc_enriched = slc_enriched[~(is_vacant & non_comm)].copy()
+
     davis_enriched = _enrich_davis_owners(davis_df)
 
     result = pd.concat([slc_enriched, davis_enriched], ignore_index=True)
-    result = result.drop(columns=["_serial_num"], errors="ignore")
+    result = result.drop(columns=["_serial_num", "lot_use"], errors="ignore")
     return result.reset_index(drop=True)

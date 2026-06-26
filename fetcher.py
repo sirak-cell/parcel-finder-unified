@@ -9,10 +9,20 @@ Public API:
 """
 
 import json
+import re
 import urllib.parse
 import urllib.request
 
 from config import MARKETS
+
+_HWY_RE = re.compile(r'\b(?:HWY|HIGHWAY|INTERSTATE)\b', re.I)
+
+
+def _strip_highway_parcels(df):
+    if df.empty or "address" not in df.columns:
+        return df
+    mask = df["address"].str.contains(_HWY_RE, na=False)
+    return df[~mask].reset_index(drop=True)
 
 import fetchers.utah       as _utah
 import fetchers.new_mexico as _nm
@@ -49,29 +59,29 @@ def fetch_parcels(state, city_name, property_classes, max_value, min_acres, max_
 
     if state == "Georgia":
         from fetchers.georgia import fetch_georgia_parcels
-        return fetch_georgia_parcels(
+        df = fetch_georgia_parcels(
             county=city_cfg.get("county", "fulton"),
             max_value=max_value,
             min_acres=min_acres,
             max_acres=max_acres,
         )
-
     elif state == "North Carolina":
         from fetchers.north_carolina import fetch_nc_parcels
-        return fetch_nc_parcels(
+        df = fetch_nc_parcels(
             city=city_cfg.get("city", "charlotte"),
             max_value=max_value,
             min_acres=min_acres,
             max_acres=max_acres,
         )
-
     elif state == "Ohio":
         from fetchers.ohio import fetch_parcels as _oh_fetch
-        return _oh_fetch(city_cfg, property_classes, max_value, min_acres, max_acres)
+        df = _oh_fetch(city_cfg, property_classes, max_value, min_acres, max_acres)
+    else:
+        fetcher_id = state_cfg["fetcher"]
+        module     = _FETCHER_MAP[fetcher_id]
+        df = module.fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres)
 
-    fetcher_id = state_cfg["fetcher"]
-    module     = _FETCHER_MAP[fetcher_id]
-    return module.fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres)
+    return _strip_highway_parcels(df)
 
 
 def fetch_walmarts(city_cfg):
