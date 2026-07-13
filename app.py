@@ -93,7 +93,7 @@ with st.sidebar:
         value=DEFAULTS["max_acres"], format="%.4f", step=0.05,
     )
     min_mi = st.slider("Min Walmart Distance (mi)", 0.0, 10.0, DEFAULTS["min_mi"], step=0.5)
-    max_mi = st.slider("Max Walmart Distance (mi)", 0.5, 2.0, DEFAULTS["max_mi"], step=0.25)
+    max_mi = st.slider("Max Walmart Distance (mi)", 0.5, 10.0, DEFAULTS["max_mi"], step=0.5)
 
     if min_acres >= max_acres:
         st.error("Min size must be less than max size.")
