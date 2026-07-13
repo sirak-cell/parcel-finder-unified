@@ -4,6 +4,7 @@ Pennsylvania parcel fetcher.
 Cities:
   Philadelphia  — OPA_PROPERTIES_PUBLIC ArcGIS FeatureServer
   Pittsburgh    — WPRDC CKAN (assessments + centroid join)
+  Harrisburg    — PASDA DauphinCounty MapServer (polygon ring centroids)
 
 Normalized output schema matches all other fetchers.
 """
@@ -17,6 +18,12 @@ import requests
 HEADERS = {"User-Agent": "ParcelFinderBot/1.0 (internal drone-hub research tool)"}
 PAGE_SIZE = 2000
 CKAN_SQL_URL = "https://data.wprdc.org/api/3/action/datastore_search_sql"
+
+# Harrisburg / Dauphin County — PASDA polygon layer
+DAUPHIN_URL = (
+    "https://mapservices.pasda.psu.edu/server/rest/services/"
+    "pasda/DauphinCounty/MapServer/0"
+)
 
 # Philadelphia OPA
 PHILLY_URL = (
@@ -273,6 +280,139 @@ def _fetch_pittsburgh(property_classes, max_value, min_acres, max_acres):
     return result
 
 
+def _ring_centroid(rings):
+    """Average all ring vertices to get an approximate polygon centroid."""
+    xs, ys = [], []
+    for ring in rings:
+        for pt in ring:
+            xs.append(pt[0])
+            ys.append(pt[1])
+    if not xs:
+        return None, None
+    return sum(ys) / len(ys), sum(xs) / len(xs)
+
+
+def _fetch_harrisburg(property_classes, max_value, min_acres, max_acres):
+    types = set(property_classes or ["Commercial", "Industrial", "Vacant"])
+
+    # py_used_co: C* = Commercial/Industrial, L* = Land/Vacant
+    # building > 0  → Commercial or Industrial (no separate I prefix in Dauphin CAMA)
+    # building = 0 AND C* → Commercial Vacant
+    # building = 0 AND L* → Land Vacant (excluded — mostly residential/agricultural)
+    code_parts = []
+    if "Commercial" in types or "Industrial" in types:
+        bldg_clause = "building > 0"
+        code_parts.append(f"(py_used_co LIKE 'C%' AND {bldg_clause})")
+    if "Vacant" in types:
+        code_parts.append("(py_used_co LIKE 'C%' AND building = 0)")
+
+    if not code_parts:
+        return []
+
+    prop_expr   = " OR ".join(code_parts)
+    total_val   = f"(land + building)"
+    min_sqft    = min_acres * 43560
+    max_sqft    = max_acres * 43560
+    muni_filter = "MUNICIPALI = 'CITY OF HARRISBURG'"
+
+    where = (
+        f"({prop_expr})"
+        f" AND {total_val} > 0 AND {total_val} <= {max_value}"
+        f" AND acres >= {min_acres} AND acres <= {max_acres}"
+        f" AND {muni_filter}"
+    )
+
+    rows   = []
+    offset = 0
+    while True:
+        params = {
+            "where":             where,
+            "outFields":         (
+                "PID,py_used_co,house_numb,prefix_dir,street_nam,street_suf,post_direc,"
+                "MUNICIPALI,land,building,acres,"
+                "last_name,first_name,org_indi_f,"
+                "address1,city,state_code,zip_code"
+            ),
+            "returnGeometry":    "true",
+            "outSR":             "4326",
+            "resultOffset":      offset,
+            "resultRecordCount": PAGE_SIZE,
+            "orderByFields":     "OBJECTID",
+            "f":                 "json",
+        }
+        try:
+            resp = requests.get(DAUPHIN_URL + "/query", params=params, headers=HEADERS, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as exc:
+            raise ValueError(f"Dauphin PASDA query failed: {exc}") from exc
+
+        if "error" in data:
+            raise ValueError(f"Dauphin PASDA error: {data['error'].get('message', data['error'])}")
+
+        features = data.get("features", [])
+        for f in features:
+            a   = f["attributes"]
+            g   = f.get("geometry") or {}
+            lat, lng = _ring_centroid(g.get("rings", []))
+            if lat is None:
+                continue
+
+            use_code = str(a.get("py_used_co") or "").strip()
+            bldg_val = float(a.get("building") or 0)
+            if bldg_val <= 0:
+                prop_class = "Vacant"
+            else:
+                prop_class = "Commercial"   # C* = commercial+industrial in Dauphin
+
+            org_flag   = str(a.get("org_indi_f") or "").strip().upper()
+            first      = str(a.get("first_name") or "").strip()
+            last       = str(a.get("last_name") or "").strip()
+            owner_name = last if (org_flag == "O" or not first) else f"{first} {last}"
+
+            # Reconstruct address
+            parts = [
+                str(a.get("house_numb") or "").strip(),
+                str(a.get("prefix_dir") or "").strip(),
+                str(a.get("street_nam") or "").strip(),
+                str(a.get("street_suf") or "").strip(),
+                str(a.get("post_direc") or "").strip(),
+            ]
+            address = " ".join(p for p in parts if p)
+
+            acres       = float(a.get("acres") or 0)
+            total_value = float(a.get("land") or 0) + bldg_val
+            owner_state = str(a.get("state_code") or "").strip()
+
+            rows.append({
+                "parcel_id":      str(a.get("PID") or "").strip(),
+                "address":        address,
+                "city":           "Harrisburg",
+                "zip":            str(a.get("zip_code") or "").strip(),
+                "property_class": prop_class,
+                "land_sqft":      round(acres * 43560, 1),
+                "land_acres":     round(acres, 4),
+                "assessed_value": total_value,
+                "owner_name":     owner_name,
+                "owner_address":  str(a.get("address1") or "").strip(),
+                "owner_city":     str(a.get("city") or "").strip(),
+                "owner_state":    owner_state,
+                "owner_zip":      str(a.get("zip_code") or "").strip(),
+                "lat":            lat,
+                "lng":            lng,
+                "out_of_state":   owner_state.upper() not in ("PA", "PENNSYLVANIA", ""),
+                "county":         "Dauphin County",
+                "luc_msg":        use_code,
+            })
+
+        if not data.get("exceededTransferLimit", False):
+            break
+        offset += len(features)
+        time.sleep(0.5)
+
+    return rows
+
+
 def fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres):
     city_key = city_cfg.get("pa_city", "philadelphia")
 
@@ -280,6 +420,8 @@ def fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres):
         rows = _fetch_philadelphia(property_classes, max_value, min_acres, max_acres)
     elif city_key == "pittsburgh":
         rows = _fetch_pittsburgh(property_classes, max_value, min_acres, max_acres)
+    elif city_key == "harrisburg":
+        rows = _fetch_harrisburg(property_classes, max_value, min_acres, max_acres)
     else:
         rows = []
 
