@@ -28,15 +28,16 @@ def _clean_parcels(df):
         df = df[df["assessed_value"] >= _MIN_ASSESSED_VALUE]
     return df.reset_index(drop=True)
 
-import fetchers.utah       as _utah
-import fetchers.new_mexico as _nm
-import fetchers.colorado   as _co
-import fetchers.florida    as _fl
-import fetchers.arizona    as _az
-import fetchers.georgia         as _ga
-import fetchers.north_carolina  as _nc
-import fetchers.ohio            as _oh
-import fetchers.tennessee       as _tn
+import fetchers.utah         as _utah
+import fetchers.new_mexico   as _nm
+import fetchers.colorado     as _co
+import fetchers.florida      as _fl
+import fetchers.arizona      as _az
+import fetchers.georgia      as _ga
+import fetchers.north_carolina as _nc
+import fetchers.ohio         as _oh
+import fetchers.tennessee    as _tn
+import fetchers.pennsylvania as _pa
 
 _FETCHER_MAP = {
     "utah":           _utah,
@@ -48,6 +49,7 @@ _FETCHER_MAP = {
     "north_carolina": _nc,
     "ohio":           _oh,
     "tennessee":      _tn,
+    "pennsylvania":   _pa,
 }
 
 _HEADERS = {"User-Agent": "ParcelFinderBot/1.0 (internal drone-hub research tool)"}

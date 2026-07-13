@@ -78,6 +78,16 @@ _WALMART_CLEVELAND = [
     {"name": "Walmart Supercenter - Ridge Rd",          "lat": 41.3978, "lng": -81.7869},
     {"name": "Walmart Supercenter - Brooklyn",          "lat": 41.4337, "lng": -81.7371},
 ]
+_WALMART_PHILADELPHIA = [
+    {"name": "Walmart Supercenter - Roosevelt Blvd", "lat": 40.0601, "lng": -75.0669},
+    {"name": "Walmart Supercenter - Columbus Blvd",  "lat": 39.9218, "lng": -75.1362},
+    {"name": "Walmart - South Philly",               "lat": 39.9093, "lng": -75.1732},
+]
+_WALMART_PITTSBURGH = [
+    {"name": "Walmart Supercenter - McKnight Rd",     "lat": 40.5539, "lng": -80.0008},
+    {"name": "Walmart Supercenter - Saw Mill Run Blvd","lat": 40.3897, "lng": -80.0217},
+    {"name": "Walmart Supercenter - Steubenville Pike","lat": 40.4423, "lng": -80.1424},
+]
 _WALMART_NASHVILLE = [
     {"name": "Walmart Supercenter - Murfreesboro Pike",  "lat": 36.0971, "lng": -86.6652},
     {"name": "Walmart Supercenter - Gallatin Pike",      "lat": 36.2381, "lng": -86.6930},
@@ -322,6 +332,24 @@ MARKETS = {
                 "map_center":    [36.17, -86.78],
                 "overpass_bbox": "36.00,-87.10,36.42,-86.50",
                 "walmart_static": _WALMART_NASHVILLE,
+            },
+        },
+    },
+    "Pennsylvania": {
+        "state_abbr": "PA",
+        "fetcher": "pennsylvania",
+        "cities": {
+            "Philadelphia": {
+                "pa_city": "philadelphia",
+                "map_center":    [39.95, -75.16],
+                "overpass_bbox": "39.86,-75.28,40.14,-74.96",
+                "walmart_static": _WALMART_PHILADELPHIA,
+            },
+            "Pittsburgh": {
+                "pa_city": "pittsburgh",
+                "map_center":    [40.44, -79.99],
+                "overpass_bbox": "40.35,-80.12,40.56,-79.85",
+                "walmart_static": _WALMART_PITTSBURGH,
             },
         },
     },
