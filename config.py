@@ -3,7 +3,7 @@ DEFAULTS = {
     "min_acres": 0.10,
     "max_acres": 0.50,
     "min_mi":    0.5,
-    "max_mi":    5.0,
+    "max_mi":    2.0,
 }
 
 # ── Walmart static fallbacks (geocoded 2026-06-22) ────────────────────────────
@@ -84,14 +84,18 @@ _WALMART_PHILADELPHIA = [
     {"name": "Walmart - South Philly",               "lat": 39.9093, "lng": -75.1732},
 ]
 _WALMART_PITTSBURGH = [
-    {"name": "Walmart Supercenter - McKnight Rd",     "lat": 40.5539, "lng": -80.0008},
-    {"name": "Walmart Supercenter - Saw Mill Run Blvd","lat": 40.3897, "lng": -80.0217},
-    {"name": "Walmart Supercenter - Steubenville Pike","lat": 40.4423, "lng": -80.1424},
+    {"name": "Walmart Supercenter - McKeesport",      "lat": 40.3872, "lng": -79.8247},
+    {"name": "Walmart Supercenter - Carnegie",        "lat": 40.4473, "lng": -80.1763},
+    {"name": "Walmart Supercenter - N Pittsburgh",    "lat": 40.5641, "lng": -79.8042},
+    {"name": "Walmart Supercenter - Homestead",       "lat": 40.3418, "lng": -79.9465},
+    {"name": "Walmart Supercenter - Steubenville Pike","lat": 40.5155, "lng": -80.2242},
 ]
 _WALMART_HARRISBURG = [
-    {"name": "Walmart Supercenter - Harrisburg Pike", "lat": 40.2731, "lng": -76.9484},
-    {"name": "Walmart Supercenter - Jonestown Rd",    "lat": 40.3123, "lng": -76.8185},
-    {"name": "Walmart Supercenter - Carlisle Pike",   "lat": 40.2565, "lng": -77.0625},
+    {"name": "Walmart Supercenter - Mechanicsburg",   "lat": 40.2483, "lng": -77.0233},
+    {"name": "Walmart Supercenter - Paxton",          "lat": 40.2617, "lng": -76.7729},
+    {"name": "Walmart Supercenter - S Harrisburg",    "lat": 40.2248, "lng": -76.9284},
+    {"name": "Walmart Supercenter - Carlisle",        "lat": 40.1894, "lng": -77.1943},
+    {"name": "Walmart Supercenter - Lebanon",         "lat": 40.1496, "lng": -76.8133},
 ]
 _WALMART_NASHVILLE = [
     {"name": "Walmart Supercenter - Murfreesboro Pike",  "lat": 36.0971, "lng": -86.6652},
@@ -227,7 +231,7 @@ MARKETS = {
             "Charlotte": {
                 "city": "charlotte",
                 "map_center": [35.23, -80.84],
-                "overpass_bbox": "35.00,-81.10,35.52,-80.56",
+                "overpass_bbox": "34.90,-81.20,35.60,-80.40",
                 "walmart_static": _WALMART_NC,
             },
             "Raleigh-Durham": {
@@ -353,13 +357,13 @@ MARKETS = {
             "Pittsburgh": {
                 "pa_city": "pittsburgh",
                 "map_center":    [40.44, -79.99],
-                "overpass_bbox": "40.35,-80.12,40.56,-79.85",
+                "overpass_bbox": "40.28,-80.30,40.62,-79.70",
                 "walmart_static": _WALMART_PITTSBURGH,
             },
             "Harrisburg": {
                 "pa_city": "harrisburg",
                 "map_center":    [40.26, -76.88],
-                "overpass_bbox": "40.22,-76.96,40.33,-76.80",
+                "overpass_bbox": "40.14,-77.25,40.46,-76.60",
                 "walmart_static": _WALMART_HARRISBURG,
             },
         },

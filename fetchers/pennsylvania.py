@@ -309,17 +309,13 @@ def _fetch_harrisburg(property_classes, max_value, min_acres, max_acres):
     if not code_parts:
         return []
 
-    prop_expr   = " OR ".join(code_parts)
-    total_val   = f"(land + building)"
-    min_sqft    = min_acres * 43560
-    max_sqft    = max_acres * 43560
-    muni_filter = "MUNICIPALI = 'CITY OF HARRISBURG'"
+    prop_expr = " OR ".join(code_parts)
+    total_val = "(land + building)"
 
     where = (
         f"({prop_expr})"
         f" AND {total_val} > 0 AND {total_val} <= {max_value}"
         f" AND acres >= {min_acres} AND acres <= {max_acres}"
-        f" AND {muni_filter}"
     )
 
     rows   = []
@@ -387,7 +383,7 @@ def _fetch_harrisburg(property_classes, max_value, min_acres, max_acres):
             rows.append({
                 "parcel_id":      str(a.get("PID") or "").strip(),
                 "address":        address,
-                "city":           "Harrisburg",
+                "city":           str(a.get("MUNICIPALI") or "").strip().title(),
                 "zip":            str(a.get("zip_code") or "").strip(),
                 "property_class": prop_class,
                 "land_sqft":      round(acres * 43560, 1),
