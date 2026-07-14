@@ -91,11 +91,7 @@ _WALMART_PITTSBURGH = [
     {"name": "Walmart Supercenter - Steubenville Pike","lat": 40.5155, "lng": -80.2242},
 ]
 _WALMART_HARRISBURG = [
-    {"name": "Walmart Supercenter - Mechanicsburg",   "lat": 40.2483, "lng": -77.0233},
     {"name": "Walmart Supercenter - Paxton",          "lat": 40.2617, "lng": -76.7729},
-    {"name": "Walmart Supercenter - S Harrisburg",    "lat": 40.2248, "lng": -76.9284},
-    {"name": "Walmart Supercenter - Carlisle",        "lat": 40.1894, "lng": -77.1943},
-    {"name": "Walmart Supercenter - Lebanon",         "lat": 40.1496, "lng": -76.8133},
 ]
 _WALMART_NASHVILLE = [
     {"name": "Walmart Supercenter - Murfreesboro Pike",  "lat": 36.0971, "lng": -86.6652},
@@ -363,7 +359,7 @@ MARKETS = {
             "Harrisburg": {
                 "pa_city": "harrisburg",
                 "map_center":    [40.26, -76.88],
-                "overpass_bbox": "40.14,-77.25,40.46,-76.60",
+                "overpass_bbox": "40.20,-77.05,40.36,-76.70",
                 "walmart_static": _WALMART_HARRISBURG,
             },
         },
