@@ -3,7 +3,7 @@ DEFAULTS = {
     "min_acres": 0.10,
     "max_acres": 0.50,
     "min_mi":    0.5,
-    "max_mi":    5.0,
+    "max_mi":    2.0,
 }
 
 # ── Walmart static fallbacks (geocoded 2026-06-22) ────────────────────────────

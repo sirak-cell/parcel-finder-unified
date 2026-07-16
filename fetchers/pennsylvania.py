@@ -25,6 +25,18 @@ DAUPHIN_URL = (
     "pasda/DauphinCounty/MapServer/0"
 )
 
+# York County — PASDA polygon layer (layer 31)
+YORK_URL = (
+    "https://mapservices.pasda.psu.edu/server/rest/services/"
+    "pasda/YorkCounty/MapServer/31"
+)
+
+# Berks County — PASDA polygon layer (layer 6)
+BERKS_URL = (
+    "https://mapservices.pasda.psu.edu/server/rest/services/"
+    "pasda/BerksCounty/MapServer/6"
+)
+
 # Philadelphia OPA
 PHILLY_URL = (
     "https://services.arcgis.com/fLeGjb7u4uXqeF9q/"
@@ -410,6 +422,167 @@ def _fetch_harrisburg(property_classes, max_value, min_acres, max_acres):
     return rows
 
 
+def _fetch_york_county(property_classes, max_value, min_acres, max_acres):
+    types = set(property_classes or ["Commercial", "Industrial", "Vacant"])
+    parts = []
+    if "Commercial" in types or "Industrial" in types:
+        parts.append("(CLASS IN ('C','I') AND APRBLDG > 0)")
+    if "Vacant" in types:
+        parts.append("(CLASS IN ('C','I') AND APRBLDG = 0)")
+    if not parts:
+        return []
+
+    where = (
+        f"({' OR '.join(parts)})"
+        f" AND APRTOTAL > 0 AND APRTOTAL <= {max_value}"
+        f" AND ACRES >= {min_acres} AND ACRES <= {max_acres}"
+    )
+
+    rows, offset = [], 0
+    while True:
+        params = {
+            "where":             where,
+            "outFields":         "PIDN,CLASS,LUC,ACRES,APRTOTAL,APRLAND,APRBLDG,PROPADR,OWN_NAME1,OWN_NAME2,MAIL_ADDR_,MAIL_ADDR1,MAIL_ADDR2,MAIL_ADDR3",
+            "returnGeometry":    "true",
+            "outSR":             "4326",
+            "resultOffset":      offset,
+            "resultRecordCount": PAGE_SIZE,
+            "orderByFields":     "OBJECTID",
+            "f":                 "json",
+        }
+        try:
+            resp = requests.get(YORK_URL + "/query", params=params, headers=HEADERS, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as exc:
+            raise ValueError(f"York PASDA query failed: {exc}") from exc
+
+        if "error" in data:
+            raise ValueError(f"York PASDA error: {data['error'].get('message', data['error'])}")
+
+        features = data.get("features", [])
+        for f in features:
+            a = f["attributes"]
+            g = f.get("geometry") or {}
+            lat, lng = _ring_centroid(g.get("rings", []))
+            if lat is None:
+                continue
+
+            bldg_val = float(a.get("APRBLDG") or 0)
+            prop_class = "Vacant" if bldg_val <= 0 else "Commercial"
+            owner = " ".join(filter(None, [
+                str(a.get("OWN_NAME1") or "").strip(),
+                str(a.get("OWN_NAME2") or "").strip(),
+            ]))
+            mail_parts = [
+                str(a.get("MAIL_ADDR_") or "").strip(),
+                str(a.get("MAIL_ADDR1") or "").strip(),
+            ]
+            owner_addr = " ".join(p for p in mail_parts if p)
+
+            rows.append({
+                "parcel_id":      str(a.get("PIDN") or "").strip(),
+                "address":        str(a.get("PROPADR") or "").strip(),
+                "city":           "",
+                "zip":            "",
+                "property_class": prop_class,
+                "land_sqft":      round(float(a.get("ACRES") or 0) * 43560, 1),
+                "land_acres":     round(float(a.get("ACRES") or 0), 4),
+                "assessed_value": float(a.get("APRTOTAL") or 0),
+                "owner_name":     owner,
+                "owner_address":  owner_addr,
+                "owner_city":     str(a.get("MAIL_ADDR2") or "").strip(),
+                "owner_state":    str(a.get("MAIL_ADDR3") or "").strip(),
+                "owner_zip":      "",
+                "lat":            float(lat),
+                "lng":            float(lng),
+                "out_of_state":   False,
+                "county":         "York County",
+                "luc_msg":        str(a.get("LUC") or "").strip(),
+            })
+
+        if not data.get("exceededTransferLimit", False):
+            break
+        offset += len(features)
+        time.sleep(0.5)
+
+    return rows
+
+
+def _fetch_berks_county(property_classes, max_value, min_acres, max_acres):
+    types = set(property_classes or ["Commercial", "Industrial", "Vacant"])
+    # Berks uses CLASS='C' for commercial; no separate industrial class found
+    if not ({"Commercial", "Industrial", "Vacant"} & types):
+        return []
+
+    where = (
+        f"CLASS = 'C'"
+        f" AND VALUTOTAL > 0 AND VALUTOTAL <= {max_value}"
+        f" AND ACREAGE >= {min_acres} AND ACREAGE <= {max_acres}"
+    )
+
+    rows, offset = [], 0
+    while True:
+        params = {
+            "where":             where,
+            "outFields":         "PROPID,CLASS,LANDUSE,ACREAGE,VALUTOTAL,VALULNDMKT,VALUBLDG,FULLSITEAD,MUNI,NAME1,FULLMAILAD",
+            "returnGeometry":    "true",
+            "outSR":             "4326",
+            "resultOffset":      offset,
+            "resultRecordCount": PAGE_SIZE,
+            "orderByFields":     "OBJECTID",
+            "f":                 "json",
+        }
+        try:
+            resp = requests.get(BERKS_URL + "/query", params=params, headers=HEADERS, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as exc:
+            raise ValueError(f"Berks PASDA query failed: {exc}") from exc
+
+        if "error" in data:
+            raise ValueError(f"Berks PASDA error: {data['error'].get('message', data['error'])}")
+
+        features = data.get("features", [])
+        for f in features:
+            a = f["attributes"]
+            g = f.get("geometry") or {}
+            lat, lng = _ring_centroid(g.get("rings", []))
+            if lat is None:
+                continue
+
+            bldg_val = float(a.get("VALUBLDG") or 0)
+            prop_class = "Vacant" if bldg_val <= 0 else "Commercial"
+
+            rows.append({
+                "parcel_id":      str(a.get("PROPID") or "").strip(),
+                "address":        str(a.get("FULLSITEAD") or "").strip(),
+                "city":           str(a.get("MUNI") or "").strip().title(),
+                "zip":            "",
+                "property_class": prop_class,
+                "land_sqft":      round(float(a.get("ACREAGE") or 0) * 43560, 1),
+                "land_acres":     round(float(a.get("ACREAGE") or 0), 4),
+                "assessed_value": float(a.get("VALUTOTAL") or 0),
+                "owner_name":     str(a.get("NAME1") or "").strip(),
+                "owner_address":  str(a.get("FULLMAILAD") or "").strip(),
+                "owner_city":     "",
+                "owner_state":    "",
+                "owner_zip":      "",
+                "lat":            float(lat),
+                "lng":            float(lng),
+                "out_of_state":   False,
+                "county":         "Berks County",
+                "luc_msg":        str(a.get("LANDUSE") or "").strip(),
+            })
+
+        if not data.get("exceededTransferLimit", False):
+            break
+        offset += len(features)
+        time.sleep(0.5)
+
+    return rows
+
+
 def fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres):
     city_key = city_cfg.get("pa_city", "philadelphia")
 
@@ -419,6 +592,11 @@ def fetch_parcels(city_cfg, property_classes, max_value, min_acres, max_acres):
         rows = _fetch_pittsburgh(property_classes, max_value, min_acres, max_acres)
     elif city_key == "harrisburg":
         rows = _fetch_harrisburg(property_classes, max_value, min_acres, max_acres)
+        for county_fn in (_fetch_york_county, _fetch_berks_county):
+            try:
+                rows.extend(county_fn(property_classes, max_value, min_acres, max_acres))
+            except Exception:
+                pass
     else:
         rows = []
 
