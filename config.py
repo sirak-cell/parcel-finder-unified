@@ -3,7 +3,7 @@ DEFAULTS = {
     "min_acres": 0.10,
     "max_acres": 0.50,
     "min_mi":    0.5,
-    "max_mi":    2.0,
+    "max_mi":    5.0,
 }
 
 # ── Walmart static fallbacks (geocoded 2026-06-22) ────────────────────────────
@@ -91,10 +91,26 @@ _WALMART_PITTSBURGH = [
     {"name": "Walmart Supercenter - Steubenville Pike","lat": 40.5155, "lng": -80.2242},
 ]
 _WALMART_HARRISBURG = [
-    {"name": "Walmart Supercenter - Paxton",          "lat": 40.2617, "lng": -76.7729},
-    {"name": "Walmart Supercenter - Camp Hill",       "lat": 40.2248, "lng": -76.9284},
-    {"name": "Walmart Supercenter - Mechanicsburg",   "lat": 40.2483, "lng": -77.0233},
-    {"name": "Walmart Supercenter - Palmyra",         "lat": 40.3230, "lng": -76.5626},
+    # Harrisburg metro
+    {"name": "Walmart Supercenter - Paxton (Harrisburg)", "lat": 40.2617, "lng": -76.7729},
+    {"name": "Walmart Supercenter - Camp Hill",           "lat": 40.2248, "lng": -76.9284},
+    {"name": "Walmart Supercenter - Mechanicsburg",       "lat": 40.2483, "lng": -77.0234},
+    {"name": "Walmart Supercenter - Palmyra",             "lat": 40.3231, "lng": -76.5627},
+    # North / Lebanon Valley
+    {"name": "Walmart Supercenter - Lebanon",             "lat": 40.3500, "lng": -76.3904},
+    {"name": "Walmart Supercenter - Wyomissing (Reading)","lat": 40.3356, "lng": -75.9928},
+    # Lancaster County
+    {"name": "Walmart Supercenter - Ephrata",             "lat": 40.1910, "lng": -76.1776},
+    {"name": "Walmart Supercenter - Mt Joy",              "lat": 40.1075, "lng": -76.4975},
+    {"name": "Walmart Supercenter - Lancaster",           "lat": 40.0296, "lng": -76.2412},
+    # West / Cumberland County
+    {"name": "Walmart Supercenter - Carlisle",            "lat": 40.1894, "lng": -77.1943},
+    {"name": "Walmart Supercenter - Shippensburg",        "lat": 40.0622, "lng": -77.4981},
+    {"name": "Walmart Supercenter - Chambersburg",        "lat": 39.9362, "lng": -77.6550},
+    # South / York County
+    {"name": "Walmart Supercenter - York",                "lat": 39.9682, "lng": -76.7703},
+    {"name": "Walmart Supercenter - Hanover",             "lat": 39.8236, "lng": -76.9751},
+    {"name": "Walmart Supercenter - Shrewsbury",          "lat": 39.7677, "lng": -76.6680},
 ]
 _WALMART_NASHVILLE = [
     {"name": "Walmart Supercenter - Murfreesboro Pike",  "lat": 36.0971, "lng": -86.6652},
@@ -361,8 +377,8 @@ MARKETS = {
             },
             "Harrisburg": {
                 "pa_city": "harrisburg",
-                "map_center":    [40.26, -76.88],
-                "overpass_bbox": "40.15,-77.10,40.38,-76.50",
+                "map_center":    [40.10, -76.90],
+                "overpass_bbox": "39.70,-77.75,40.55,-75.85",
                 "walmart_static": _WALMART_HARRISBURG,
             },
         },

@@ -15,7 +15,8 @@ import urllib.request
 
 from config import MARKETS
 
-_HWY_RE = re.compile(r'\b(?:HWY|HIGHWAY|INTERSTATE)\b', re.I)
+_HWY_RE  = re.compile(r'\b(?:HWY|HIGHWAY|INTERSTATE)\b', re.I)
+_REAR_RE = re.compile(r'\bREAR\b', re.I)
 _MIN_ASSESSED_VALUE = 5_000
 
 
@@ -24,6 +25,7 @@ def _clean_parcels(df):
         return df
     if "address" in df.columns:
         df = df[~df["address"].str.contains(_HWY_RE, na=False)]
+        df = df[~df["address"].str.contains(_REAR_RE, na=False)]
     if "assessed_value" in df.columns:
         df = df[df["assessed_value"] >= _MIN_ASSESSED_VALUE]
     return df.reset_index(drop=True)
