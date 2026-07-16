@@ -314,6 +314,7 @@ def _fetch_harrisburg(property_classes, max_value, min_acres, max_acres):
 
     where = (
         f"({prop_expr})"
+        f" AND py_used_co <> 'C16'"
         f" AND {total_val} > 0 AND {total_val} <= {max_value}"
         f" AND acres >= {min_acres} AND acres <= {max_acres}"
     )
