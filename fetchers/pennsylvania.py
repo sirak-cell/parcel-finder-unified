@@ -324,9 +324,11 @@ def _fetch_harrisburg(property_classes, max_value, min_acres, max_acres):
     prop_expr = " OR ".join(code_parts)
     total_val = "(land + building)"
 
+    # Exclude: C16 parking lots, C12 hotels/motels, C13 campgrounds, C21 railroad/utility
+    _EXCLUDE_CODES = "('C16','C12','C13','C21')"
     where = (
         f"({prop_expr})"
-        f" AND py_used_co <> 'C16'"
+        f" AND py_used_co NOT IN {_EXCLUDE_CODES}"
         f" AND {total_val} > 0 AND {total_val} <= {max_value}"
         f" AND acres >= {min_acres} AND acres <= {max_acres}"
     )
@@ -426,9 +428,10 @@ def _fetch_york_county(property_classes, max_value, min_acres, max_acres):
     types = set(property_classes or ["Commercial", "Industrial", "Vacant"])
     parts = []
     if "Commercial" in types or "Industrial" in types:
-        parts.append("(CLASS IN ('C','I') AND APRBLDG > 0)")
+        # LUC 5xx = Industrial/warehouse — exclude to match Utah's small-commercial profile
+        parts.append("(CLASS = 'C' AND APRBLDG > 0)")
     if "Vacant" in types:
-        parts.append("(CLASS IN ('C','I') AND APRBLDG = 0)")
+        parts.append("(CLASS = 'C' AND APRBLDG = 0)")
     if not parts:
         return []
 
